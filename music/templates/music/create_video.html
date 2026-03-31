@@ -1,0 +1,52 @@
+{% extends 'music/base.html' %}
+{% block title %}Add a New Video{% endblock %}
+{% block videos_active %}active{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <div class="row">
+
+        <div class="col-sm-12 col-md-7">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h3>Add a New Video</h3>
+                    {% if error_message %}
+                        <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+                    <form class="form-horizontal" role="form" action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% include 'music/form_template.html' %}
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-md-5">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h3>Adding Videos</h3>
+                    <p>Upload your favorite music videos and clips to your library.</p>
+                    <h3>Supported Formats</h3>
+                    <ul>
+                        <li>MP4, MKV, AVI, MOV, WMV, FLV, WEBM</li>
+                    </ul>
+                    <h3>Thumbnail Tips</h3>
+                    <ul>
+                        <li>Thumbnail is optional but recommended</li>
+                        <li>Use common image formats: PNG, JPG, or JPEG</li>
+                        <li>A resolution of 512x512 or higher looks best</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

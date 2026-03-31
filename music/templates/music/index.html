@@ -104,5 +104,40 @@
         </div>
     {% endif %}
 
+    <!-- If user searches and there are videos -->
+    {% if videos %}
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>Videos</h3>
+            </div>
+            {% for video in videos %}
+                <div class="col-sm-4 col-lg-3">
+                    <div class="thumbnail">
+                        {% if video.thumbnail %}
+                            <a href="{% url 'music:video_detail' video.id %}">
+                                <img src="{{ video.thumbnail.url }}" class="img-responsive">
+                            </a>
+                        {% else %}
+                            <a href="{% url 'music:video_detail' video.id %}">
+                                <div style="background: #333; color: #fff; text-align: center; padding: 40px 10px;">
+                                    <span class="glyphicon glyphicon-film" style="font-size: 48px;"></span>
+                                    <p>{{ video.title }}</p>
+                                </div>
+                            </a>
+                        {% endif %}
+                        <div class="caption">
+                            <h4>{{ video.title }}</h4>
+                            <p>{{ video.artist }}</p>
+                            <a href="{% url 'music:video_detail' video.id %}" class="btn btn-primary btn-sm" role="button">Watch</a>
+                            <a href="{% url 'music:favorite_video' video.id %}" class="btn btn-default btn-sm btn-favorite" role="button">
+                                <span class="glyphicon glyphicon-star {% if video.is_favorite %}active{% endif %}"></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
 </div>
 {% endblock %}

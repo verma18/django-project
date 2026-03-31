@@ -16,4 +16,11 @@ urlpatterns = [
     url(r'^(?P<album_id>[0-9]+)/delete_song/(?P<song_id>[0-9]+)/$', views.delete_song, name='delete_song'),
     url(r'^(?P<album_id>[0-9]+)/favorite_album/$', views.favorite_album, name='favorite_album'),
     url(r'^(?P<album_id>[0-9]+)/delete_album/$', views.delete_album, name='delete_album'),
+
+    # Video URLs
+    url(r'^videos/(?P<filter_by>[a-zA_Z]+)/$', views.videos, name='videos'),
+    url(r'^create_video/$', views.create_video, name='create_video'),
+    url(r'^video/(?P<video_id>[0-9]+)/$', views.video_detail, name='video_detail'),
+    url(r'^video/(?P<video_id>[0-9]+)/favorite/$', views.favorite_video, name='favorite_video'),
+    url(r'^video/(?P<video_id>[0-9]+)/delete/$', views.delete_video, name='delete_video'),
 ]

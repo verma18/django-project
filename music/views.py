@@ -3,11 +3,12 @@ from django.contrib.auth import logout
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
-from .forms import AlbumForm, SongForm, UserForm
-from .models import Album, Song
+from .forms import AlbumForm, SongForm, UserForm, VideoForm
+from .models import Album, Song, Video
 
 AUDIO_FILE_TYPES = ['wav', 'mp3', 'ogg']
 IMAGE_FILE_TYPES = ['png', 'jpg', 'jpeg']
+VIDEO_FILE_TYPES = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'webm']
 
 
 def create_album(request):
@@ -129,6 +130,7 @@ def index(request):
         albums = Album.objects.filter(user=request.user)
         song_results = Song.objects.all()
         query = request.GET.get("q")
+        video_results = Video.objects.filter(user=request.user)
         if query:
             albums = albums.filter(
                 Q(album_title__icontains=query) |
@@ -137,9 +139,14 @@ def index(request):
             song_results = song_results.filter(
                 Q(song_title__icontains=query)
             ).distinct()
+            video_results = video_results.filter(
+                Q(title__icontains=query) |
+                Q(artist__icontains=query)
+            ).distinct()
             return render(request, 'music/index.html', {
                 'albums': albums,
                 'songs': song_results,
+                'videos': video_results,
             })
         else:
             return render(request, 'music/index.html', {'albums': albums})
@@ -189,6 +196,87 @@ def register(request):
         "form": form,
     }
     return render(request, 'music/register.html', context)
+
+
+def create_video(request):
+    if not request.user.is_authenticated():
+        return render(request, 'music/login.html')
+    else:
+        form = VideoForm(request.POST or None, request.FILES or None)
+        if form.is_valid():
+            video = form.save(commit=False)
+            video.user = request.user
+            video.video_file = request.FILES['video_file']
+            file_type = video.video_file.url.split('.')[-1]
+            file_type = file_type.lower()
+            if file_type not in VIDEO_FILE_TYPES:
+                context = {
+                    'video': video,
+                    'form': form,
+                    'error_message': 'Video file must be MP4, MKV, AVI, MOV, WMV, FLV, or WEBM',
+                }
+                return render(request, 'music/create_video.html', context)
+            if 'thumbnail' in request.FILES:
+                video.thumbnail = request.FILES['thumbnail']
+                thumb_type = video.thumbnail.url.split('.')[-1].lower()
+                if thumb_type not in IMAGE_FILE_TYPES:
+                    context = {
+                        'video': video,
+                        'form': form,
+                        'error_message': 'Thumbnail must be PNG, JPG, or JPEG',
+                    }
+                    return render(request, 'music/create_video.html', context)
+            video.save()
+            return render(request, 'music/video_detail.html', {'video': video})
+        context = {
+            "form": form,
+        }
+        return render(request, 'music/create_video.html', context)
+
+
+def delete_video(request, video_id):
+    video = Video.objects.get(pk=video_id)
+    video.delete()
+    videos = Video.objects.filter(user=request.user)
+    return render(request, 'music/videos.html', {'videos': videos})
+
+
+def video_detail(request, video_id):
+    if not request.user.is_authenticated():
+        return render(request, 'music/login.html')
+    else:
+        video = get_object_or_404(Video, pk=video_id)
+        return render(request, 'music/video_detail.html', {'video': video})
+
+
+def favorite_video(request, video_id):
+    video = get_object_or_404(Video, pk=video_id)
+    try:
+        if video.is_favorite:
+            video.is_favorite = False
+        else:
+            video.is_favorite = True
+        video.save()
+    except (KeyError, Video.DoesNotExist):
+        return JsonResponse({'success': False})
+    else:
+        return JsonResponse({'success': True})
+
+
+def videos(request, filter_by):
+    if not request.user.is_authenticated():
+        return render(request, 'music/login.html')
+    else:
+        try:
+            users_videos = Video.objects.filter(user=request.user)
+            if filter_by == 'favorites':
+                users_videos = users_videos.filter(is_favorite=True)
+        except Video.DoesNotExist:
+            users_videos = []
+        return render(request, 'music/videos.html', {
+            'videos': users_videos,
+            'filter_by': filter_by,
+        })
 
 
 def songs(request, filter_by):

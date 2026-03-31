@@ -22,3 +22,16 @@ class Song(models.Model):
 
     def __str__(self):
         return self.song_title
+
+
+class Video(models.Model):
+    user = models.ForeignKey(User, default=1)
+    title = models.CharField(max_length=250)
+    artist = models.CharField(max_length=250)
+    genre = models.CharField(max_length=100)
+    video_file = models.FileField()
+    thumbnail = models.FileField(blank=True, null=True)
+    is_favorite = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.title + ' - ' + self.artist

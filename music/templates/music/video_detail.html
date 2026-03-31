@@ -1,0 +1,52 @@
+{% extends 'music/base.html' %}
+{% block title %}{{ video.title }}{% endblock %}
+{% block videos_active %}active{% endblock %}
+
+{% block body %}
+<div class="container-fluid videos-container">
+
+    <div class="row">
+
+        <div class="col-sm-12 col-md-8 col-md-offset-2">
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <!-- Video Player -->
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <video controls style="max-width: 100%; max-height: 480px;">
+                            <source src="{{ video.video_file.url }}">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+
+                    <h2>{{ video.title }} <small>{{ video.genre }}</small></h2>
+                    <h3>{{ video.artist }}</h3>
+
+                    <div style="margin-top: 20px;">
+                        <!-- Favorite -->
+                        <a href="{% url 'music:favorite_video' video.id %}" class="btn btn-default btn-favorite" role="button">
+                            <span class="glyphicon glyphicon-star {% if video.is_favorite %}active{% endif %}"></span>&nbsp; Favorite
+                        </a>
+
+                        <!-- Delete -->
+                        <form action="{% url 'music:delete_video' video.id %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <span class="glyphicon glyphicon-trash"></span>&nbsp; Delete
+                            </button>
+                        </form>
+
+                        <!-- Back to Videos -->
+                        <a href="{% url 'music:videos' 'all' %}" class="btn btn-default" role="button">
+                            <span class="glyphicon glyphicon-arrow-left"></span>&nbsp; Back to Videos
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
