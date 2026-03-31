@@ -1,0 +1,73 @@
+{% extends 'music/base.html' %}
+{% block title %}All Videos{% endblock %}
+{% block videos_active %}active{% endblock %}
+
+{% block body %}
+<div class="container-fluid videos-container">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <ul class="nav nav-pills" style="margin-bottom: 10px;">
+                <li role="presentation" {% if filter_by == 'all' %}class="active"{% endif %}><a href="{% url 'music:videos' 'all' %}">View All</a></li>
+                <li role="presentation" {% if filter_by == 'favorites' %}class="active"{% endif %}><a href="{% url 'music:videos' 'favorites' %}">Favorites</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+
+        {% if videos %}
+            {% for video in videos %}
+                <div class="col-sm-4 col-lg-3">
+                    <div class="thumbnail">
+                        {% if video.thumbnail %}
+                            <a href="{% url 'music:video_detail' video.id %}">
+                                <img src="{{ video.thumbnail.url }}" class="img-responsive">
+                            </a>
+                        {% else %}
+                            <a href="{% url 'music:video_detail' video.id %}">
+                                <div style="background: #333; color: #fff; text-align: center; padding: 40px 10px;">
+                                    <span class="glyphicon glyphicon-film" style="font-size: 48px;"></span>
+                                    <p>{{ video.title }}</p>
+                                </div>
+                            </a>
+                        {% endif %}
+                        <div class="caption">
+                            <h4>{{ video.title }}</h4>
+                            <p>{{ video.artist }} &middot; {{ video.genre }}</p>
+
+                            <!-- View Details -->
+                            <a href="{% url 'music:video_detail' video.id %}" class="btn btn-primary btn-sm" role="button">View</a>
+
+                            <!-- Delete Video -->
+                            <form action="{% url 'music:delete_video' video.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-default btn-sm">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </form>
+
+                            <!-- Favorite Video -->
+                            <a href="{% url 'music:favorite_video' video.id %}" class="btn btn-default btn-sm btn-favorite" role="button">
+                                <span class="glyphicon glyphicon-star {% if video.is_favorite %}active{% endif %}"></span>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-sm-12">
+                <br>
+                <a href="{% url 'music:create_video' %}">
+                    <button type="button" class="btn btn-success">
+                        <span class="glyphicon glyphicon-plus"></span>&nbsp; Add a Video
+                    </button>
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}
